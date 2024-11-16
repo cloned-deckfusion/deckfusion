@@ -1,0 +1,27 @@
+services:
+
+  landing-backend:
+    build:
+      context: ../landing-backend
+      dockerfile: Dockerfile
+    container_name: landing-backend
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    image: landing-backend
+    networks:
+      - dfnet
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - /app/__pycache__
+      - ../landing-backend:/app
+
+networks:
+  dfnet:
+    name: landing-dfnet
