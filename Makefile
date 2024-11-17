@@ -6,11 +6,11 @@ up:
 down:
 	docker compose down
 
-build:
+build: check-env
 	$(MAKE) -C ../deckfusion-landing build
 	docker compose build
 
-rebuild:
+rebuild: check-env
 	$(MAKE) -C ../deckfusion-landing rebuild
 	docker compose build --no-cache
 
@@ -27,6 +27,9 @@ fclean: clean
 
 re: fclean rebuild up
 
+check-env:
+	@test -f .env || (echo ".env not found. Copying .env.example to .env."; cp .env.example .env)
+
 .PHONY: \
 	all build rebuild up down \
-	clean fclean re
+	clean fclean re check-env
