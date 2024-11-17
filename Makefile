@@ -19,6 +19,7 @@ rebuild: check-env
 clean:
 	- docker ps -a --filter "name=deckfusion" -q | xargs -r docker stop
 	- docker ps -a --filter "name=deckfusion" -q | xargs -r docker rm -f
+	- docker images --filter "reference=backend_base*" -q | xargs -r docker rmi -f
 	- docker images --filter "reference=deckfusion*" -q | xargs -r docker rmi -f
 	$(MAKE) -C ../deckfusion-landing clean
 	$(MAKE) -C ../deckfusion-backend clean
