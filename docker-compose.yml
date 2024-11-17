@@ -2,9 +2,9 @@ services:
 
   landing-backend:
     build:
-      context: ../landing-backend
+      context: ../deckfusion-landing
       dockerfile: Dockerfile
-    container_name: landing-backend
+    container_name: deckfusion-landing
     env_file:
       - .env
     healthcheck:
@@ -12,7 +12,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    image: landing-backend
+    image: deckfusion-landing
     networks:
       - dfnet
     ports:
@@ -20,8 +20,8 @@ services:
     restart: always
     volumes:
       - /app/__pycache__
-      - ../landing-backend:/app
+      - ../deckfusion-landing:/app
 
 networks:
   dfnet:
-    name: landing-dfnet
+    name: deckfusion-net

@@ -1,2 +1,2 @@
-# Landing
-A development environment for the DeckFusion landing page
+# DeckFusion
+A development environment for DeckFusion
