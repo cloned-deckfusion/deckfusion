@@ -19,7 +19,7 @@ services:
       retries: 5
     image: deckfusion-backend
     networks:
-      - dfnet
+      - deckfusion-net
     ports:
       - "8001:8001"
     restart: always
@@ -45,7 +45,7 @@ services:
       test: ["CMD-SHELL", "exit 0"]
     image: deckfusion-backend-beat
     networks:
-      - dfnet
+      - deckfusion-net
     restart: always
     volumes:
       - /app/__pycache__
@@ -69,7 +69,7 @@ services:
       test: ["CMD-SHELL", "exit 0"]
     image: deckfusion-backend-worker
     networks:
-      - dfnet
+      - deckfusion-net
     restart: always
     volumes:
       - /app/__pycache__
@@ -89,7 +89,7 @@ services:
       retries: 5
     image: deckfusion-backend-db
     networks:
-      - dfnet
+      - deckfusion-net
     ports:
       - "5432:5432"
     restart: always
@@ -105,7 +105,7 @@ services:
       retries: 5
     image: redis:alpine
     networks:
-      - dfnet
+      - deckfusion-net
     restart: always
 
   deckfusion-landing:
@@ -122,7 +122,7 @@ services:
       retries: 5
     image: deckfusion-landing
     networks:
-      - dfnet
+      - deckfusion-net
     ports:
       - "8000:8000"
     restart: always
@@ -131,5 +131,9 @@ services:
       - ../deckfusion-landing:/app
 
 networks:
-  dfnet:
+  deckfusion-net:
     name: deckfusion-net
+
+volumes:
+  deckfusion-backend-db-data:
+    name: deckfusion-backend-db-data
