@@ -1,3 +1,6 @@
+DIR_BACKEND  = ../deckfusion-backend
+DIR_LANDING  = ../deckfusion-landing
+
 all: rebuild up
 
 up:
@@ -15,6 +18,27 @@ rebuild: check-env
 	$(MAKE) -C ../deckfusion-backend rebuild
 	$(MAKE) -C ../deckfusion-landing rebuild
 	docker compose build --no-cache
+
+heroku-login:
+	$(eval HEROKU_USER := $(shell heroku whoami 2>/dev/null))
+	@if [ -z "$(HEROKU_USER)" ]; then \
+		echo "Not logged in to Heroku. Logging in..."; \
+		heroku login; \
+	else \
+		echo "Already logged in as $(HEROKU_USER)"; \
+	fi
+
+heroku-push-landing: build heroku-login
+	heroku container:login
+	(cd $(DIR_LANDING) && heroku container:push web --app cloned-deckfusion-landing)
+
+heroku-release-landing: heroku-login
+	heroku container:login
+	(cd $(DIR_LANDING) && heroku container:release web --app cloned-deckfusion-landing)
+
+heroku-push-release-landing: heroku-push-landing heroku-release-landing
+
+hpr-landing: heroku-push-release-landing
 
 clean:
 	- docker ps -a --filter "name=deckfusion" -q | xargs -r docker stop
@@ -37,4 +61,6 @@ check-env:
 
 .PHONY: \
 	all build rebuild up down \
+	heroku-login \
+	heroku-push-landing heroku-release-landing heroku-push-release-landing hpr-landing \
 	clean fclean re check-env
