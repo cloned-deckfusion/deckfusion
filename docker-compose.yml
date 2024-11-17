@@ -1,6 +1,114 @@
 services:
 
-  landing-backend:
+  deckfusion-backend:
+    build:
+      context: ../deckfusion-backend
+      dockerfile: Dockerfile.web
+    container_name: deckfusion-backend
+    depends_on:
+      deckfusion-backend-db:
+        condition: service_healthy
+      deckfusion-backend-kv:
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/admin/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    image: deckfusion-backend
+    networks:
+      - dfnet
+    ports:
+      - "8001:8001"
+    restart: always
+    volumes:
+      - /app/__pycache__
+      - ../deckfusion-backend:/app
+
+  deckfusion-backend-beat:
+    build:
+      context: ../deckfusion-backend
+      dockerfile: Dockerfile.beat
+    container_name: deckfusion-backend-beat
+    depends_on:
+      deckfusion-backend:
+        condition: service_healthy
+      deckfusion-backend-db:
+        condition: service_healthy
+      deckfusion-backend-kv:
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+    image: deckfusion-backend-beat
+    networks:
+      - dfnet
+    restart: always
+    volumes:
+      - /app/__pycache__
+      - ../deckfusion-backend:/app
+
+  deckfusion-backend-worker:
+    build:
+      context: ../deckfusion-backend
+      dockerfile: Dockerfile.worker
+    container_name: deckfusion-backend-woker
+    depends_on:
+      deckfusion-backend:
+        condition: service_healthy
+      deckfusion-backend-db:
+        condition: service_healthy
+      deckfusion-backend-kv:
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+    image: deckfusion-backend-worker
+    networks:
+      - dfnet
+    restart: always
+    volumes:
+      - /app/__pycache__
+      - ../deckfusion-backend:/app
+
+  deckfusion-backend-db:
+    build: ../deckfusion-backend-db
+    container_name: deckfusion-backend-db
+    environment:
+      POSTGRES_DB: ${BACKEND_DATABASE_NAME}
+      POSTGRES_USER: ${BACKEND_DATABASE_USER}
+      POSTGRES_PASSWORD: ${BACKEND_DATABASE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BACKEND_DATABASE_USER} -d ${BACKEND_DATABASE_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    image: deckfusion-backend-db
+    networks:
+      - dfnet
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - deckfusion-backend-db-data:/var/lib/postgresql/data
+
+  deckfusion-backend-kv:
+    container_name: deckfusion-backend-kv
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    image: redis:alpine
+    networks:
+      - dfnet
+    restart: always
+
+  deckfusion-landing:
     build:
       context: ../deckfusion-landing
       dockerfile: Dockerfile
