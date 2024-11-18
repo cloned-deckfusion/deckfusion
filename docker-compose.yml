@@ -55,7 +55,7 @@ services:
     build:
       context: ../deckfusion-backend
       dockerfile: Dockerfile.worker
-    container_name: deckfusion-backend-woker
+    container_name: deckfusion-backend-worker
     depends_on:
       deckfusion-backend:
         condition: service_healthy
