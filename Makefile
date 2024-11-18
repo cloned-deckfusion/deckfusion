@@ -28,6 +28,18 @@ heroku-login:
 		echo "Already logged in as $(HEROKU_USER)"; \
 	fi
 
+heroku-push-backend: build heroku-login
+	heroku container:login
+	(cd $(DIR_BACKEND) && heroku container:push web worker beat --recursive --app cloned-deckfusion-backend)
+
+heroku-release-backend: heroku-login
+	heroku container:login
+	(cd $(DIR_BACKEND) && heroku container:release web worker beat --app cloned-deckfusion-backend)
+
+heroku-push-release-backend: heroku-push-backend heroku-release-backend
+
+hpr-backend: heroku-push-release-backend
+
 heroku-push-landing: build heroku-login
 	heroku container:login
 	(cd $(DIR_LANDING) && heroku container:push web --app cloned-deckfusion-landing)
